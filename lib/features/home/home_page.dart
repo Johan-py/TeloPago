@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../qr/qr_page.dart';
 import '../settings/settings_page.dart';
-
+import '../transfers/bankTransferHome_page.dart';
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -40,10 +40,26 @@ class _HomePageState extends State<HomePage> {
                   Text('Hola, Johan 👋', style: TextStyle(fontSize: 16)),
                 ],
               ),
-              IconButton(
-                icon: const Icon(Icons.attach_money),
-                onPressed: () {},
-              ),
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color.fromARGB(255, 30, 134, 231), // Fondo verde
+                  shape: BoxShape.circle, // Forma circular
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.attach_money, color: Colors.white), // Color blanco para el ícono
+                  onPressed: () {
+                    // Navegar a la vista de Transferencias
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const TransferOptionsPage()),
+                    );
+                  },
+                  padding: EdgeInsets.zero, // Elimina el padding predeterminado del IconButton
+                  iconSize: 30, // Tamaño del ícono (puedes ajustarlo)
+                ),
+              )
+
+
             ],
           ),
           const SizedBox(height: 24),
@@ -52,7 +68,7 @@ class _HomePageState extends State<HomePage> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color.fromRGBO(245, 245, 245, 1),
+              color: const Color.fromARGB(255, 189, 224, 226),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Column(
@@ -73,7 +89,7 @@ class _HomePageState extends State<HomePage> {
             child: ElevatedButton(
               onPressed: () => Navigator.pushNamed(context, '/payments'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF25adb6),
+                backgroundColor: const Color.fromARGB(255, 101, 211, 219),
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
               child: const Text('Pagar un servicio'),
@@ -82,7 +98,7 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(height: 24),
 
           // Sección 4: Historial
-          const Text('Historial de pagos', style: TextStyle(fontSize: 18)),
+          const Text('Ultimos movimientos', style: TextStyle(fontSize: 18)),
           const SizedBox(height: 12),
           TextField(
             decoration: InputDecoration(
@@ -127,8 +143,14 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('TeloPago'),
-        backgroundColor: const Color(0xFF25adb6),
+        backgroundColor: const Color.fromARGB(255, 101, 211, 219),
+        titleTextStyle: const TextStyle(
+          fontSize: 22, // Tamaño más grande
+          fontWeight: FontWeight.w600, // Peso opcional para destacarlo
+          color: Colors.white, // Color del texto
+        ),
       ),
+
       body: _pages.length > _selectedIndex
           ? _pages[_selectedIndex]
           : const SizedBox.shrink(),

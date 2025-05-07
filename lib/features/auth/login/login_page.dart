@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatefulWidget {
@@ -11,13 +12,34 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  void _onLoginPressed() {
-    final email = _emailController.text.trim();
-    final password = _passwordController.text.trim();
+void _onLoginPressed() async {
+  final email = _emailController.text.trim();
+  final password = _passwordController.text.trim();
 
-    // Aquí conectarás Firebase más adelante
-    print('Email: $email, Password: $password');
+  try {
+    final credential = await FirebaseAuth.instance
+        .signInWithEmailAndPassword(email: email, password: password);
+
+    // Si llega aquí, el login fue exitoso
+    print('Usuario autenticado: ${credential.user?.uid}');
+    Navigator.pushReplacementNamed(context, '/home'); // o la ruta que corresponda
+  } on FirebaseAuthException catch (e) {
+    String message;
+    if (e.code == 'user-not-found') {
+      message = 'No existe una cuenta con ese correo.';
+    } else if (e.code == 'wrong-password') {
+      message = 'Contraseña incorrecta.';
+    } else {
+      message = 'Error: ${e.message}';
+    }
+
+    // Mostrar error en pantalla
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
   }
+}
+
 
   void _goToRegister() {
     Navigator.pushNamed(context, '/register');

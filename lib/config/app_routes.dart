@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../features/auth/login/login_page.dart';
 import '../features/auth/register/register_page.dart';
-import '../features/auth/complete_profile/complete_profile_page.dart';
+import '../features/auth/register/complete_profile_page.dart';
 import '../features/home/home_page.dart';
 import '../features/payments/payments_page.dart';
 import '../features/payments/aliexpress_view.dart';

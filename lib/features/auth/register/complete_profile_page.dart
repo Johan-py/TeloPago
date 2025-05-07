@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/controllers/complete_profile_controller.dart';
 
 class CompleteProfilePage extends StatefulWidget {
   const CompleteProfilePage({super.key});
@@ -9,11 +10,19 @@ class CompleteProfilePage extends StatefulWidget {
 
 class _CompleteProfilePageState extends State<CompleteProfilePage> {
   final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController(); // puede venir prellenado
+  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _idController = TextEditingController();
   DateTime? _birthDate;
 
-  void _submitProfile() {
+  final CompleteProfileController _controller = CompleteProfileController();
+
+  @override
+  void initState() {
+    super.initState();
+    _emailController.text = _controller.getCurrentEmail();
+  }
+
+  Future<void> _submitProfile() async {
     final name = _nameController.text.trim();
     final email = _emailController.text.trim();
     final carnet = _idController.text.trim();
@@ -26,13 +35,20 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
       return;
     }
 
-    print('Nombre: $name');
-    print('Correo: $email');
-    print('Carnet: $carnet');
-    print('Fecha de nacimiento: $birth');
+    try {
+      await _controller.submitProfile(
+        name: name,
+        email: email,
+        carnet: carnet,
+        birthDate: birth,
+      );
 
-    // Aquí guardas los datos en Firebase
-    Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+      Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${e.toString()}')),
+      );
+    }
   }
 
   Future<void> _pickBirthDate() async {
