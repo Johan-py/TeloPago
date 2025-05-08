@@ -1,35 +1,65 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class AuthService {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final String _baseUrl = 'http://10.0.2.2:5001/telopago-dev/us-central1/api';
 
-  // Registro con email y contraseña
-  Future<User?> registerWithEmail(String email, String password) async {
+  Future<void> registerUser({
+    required String name,
+    required String email,
+    required String carnet,
+    required DateTime birthDate,
+    required String password,
+  }) async {
     try {
-      final result = await _auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
+      final response = await http.post(
+        Uri.parse('$_baseUrl/auth/register'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({
+          'name': name,
+          'email': email,
+          'carnet': carnet,
+          'birthDate': birthDate.toIso8601String(),
+          'password': password,
+        }),
       );
-      return result.user;
+
+      if (response.statusCode != 200) {
+        final errorResponse = json.decode(response.body);
+        throw Exception('Error: ${errorResponse['message']}');
+      }
+
+      print('Usuario registrado correctamente');
     } catch (e) {
-      throw Exception('Error en el registro: $e');
+      throw Exception('Error al registrar el usuario: $e');
     }
   }
 
-  // Login con email
-  Future<User?> login(String email, String password) async {
+  Future<Map<String, dynamic>> loginUser({
+    required String email,
+    required String password,
+  }) async {
     try {
-      final result = await _auth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
+      final response = await http.post(
+        Uri.parse('$_baseUrl/auth/authenticate'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'email': email,
+          'password': password,
+        }),
       );
-      return result.user;
+
+      if (response.statusCode == 200) {
+        print('Login exitoso');
+        return json.decode(response.body);
+      } else {
+        final error = json.decode(response.body);
+        throw Exception('Error al autenticar: ${error['message']}');
+      }
     } catch (e) {
       throw Exception('Error al iniciar sesión: $e');
     }
-  }
-
-  Future<void> logout() async {
-    await _auth.signOut();
   }
 }

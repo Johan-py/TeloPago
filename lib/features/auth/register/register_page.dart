@@ -17,8 +17,12 @@ class _RegisterPageState extends State<RegisterPage> {
       // Aquí va lógica para crear cuenta con correo
       print('Registrando con correo: $email');
 
-      // Ir a completar perfil
-      Navigator.pushNamed(context, '/complete-profile');
+      // Ir a completar perfil y pasar el correo como argumento
+      Navigator.pushNamed(
+        context, 
+        '/complete-profile', 
+        arguments: email, // Pasar el correo como argumento
+      );
     }
   }
 

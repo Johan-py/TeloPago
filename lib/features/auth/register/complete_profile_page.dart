@@ -12,14 +12,22 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _idController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
   DateTime? _birthDate;
 
   final CompleteProfileController _controller = CompleteProfileController();
 
   @override
-  void initState() {
-    super.initState();
-    _emailController.text = _controller.getCurrentEmail();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    
+    // Obtener el correo pasado como argumento desde la página anterior
+    final String? email = ModalRoute.of(context)!.settings.arguments as String?;
+    
+    if (email != null) {
+      _emailController.text = email; // Completar el campo de correo
+    }
   }
 
   Future<void> _submitProfile() async {
@@ -27,10 +35,19 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
     final email = _emailController.text.trim();
     final carnet = _idController.text.trim();
     final birth = _birthDate;
+    final password = _passwordController.text.trim();
+    final confirmPassword = _confirmPasswordController.text.trim();
 
-    if (name.isEmpty || email.isEmpty || carnet.isEmpty || birth == null) {
+    if (name.isEmpty || email.isEmpty || carnet.isEmpty || birth == null || password.isEmpty || confirmPassword.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Por favor completa todos los campos.')),
+      );
+      return;
+    }
+
+    if (password != confirmPassword) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Las contraseñas no coinciden.')),
       );
       return;
     }
@@ -41,9 +58,18 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
         email: email,
         carnet: carnet,
         birthDate: birth,
+        password: password,
       );
 
-      Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+      Future.microtask(() {
+        // Navegar a la página de inicio, pasando el nombre como argumento
+        Navigator.pushNamedAndRemoveUntil(
+          context, 
+          '/home', 
+          (route) => false, 
+          arguments: name, // Pasar el nombre como argumento
+        );  
+      });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: ${e.toString()}')),
@@ -81,6 +107,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
             ),
             const SizedBox(height: 24),
 
+            // Campo de nombre completo
             TextField(
               controller: _nameController,
               decoration: const InputDecoration(
@@ -90,6 +117,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
             ),
             const SizedBox(height: 16),
 
+            // Campo de correo electrónico
             TextField(
               controller: _emailController,
               decoration: const InputDecoration(
@@ -100,6 +128,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
             ),
             const SizedBox(height: 16),
 
+            // Campo de número de carnet
             TextField(
               controller: _idController,
               decoration: const InputDecoration(
@@ -110,6 +139,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
             ),
             const SizedBox(height: 16),
 
+            // Selector de fecha de nacimiento
             GestureDetector(
               onTap: _pickBirthDate,
               child: InputDecorator(
@@ -125,8 +155,31 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
                 ),
               ),
             ),
+            const SizedBox(height: 16),
+
+            // Campo de contraseña
+            TextField(
+              controller: _passwordController,
+              decoration: const InputDecoration(
+                labelText: 'Contraseña',
+                border: OutlineInputBorder(),
+              ),
+              obscureText: true, // Ocultar el texto ingresado
+            ),
+            const SizedBox(height: 16),
+
+            // Campo de confirmación de contraseña
+            TextField(
+              controller: _confirmPasswordController,
+              decoration: const InputDecoration(
+                labelText: 'Confirmar contraseña',
+                border: OutlineInputBorder(),
+              ),
+              obscureText: true, // Ocultar el texto ingresado
+            ),
             const SizedBox(height: 32),
 
+            // Botón para completar el registro
             ElevatedButton(
               onPressed: _submitProfile,
               child: const Text('Finalizar registro'),

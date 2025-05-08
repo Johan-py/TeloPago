@@ -1,14 +1,23 @@
-import 'package:flutter/material.dart';
-import 'package:telopago/firebase_options.dart';
-import 'config/app_routes.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'core/controllers/login_controller.dart';
+import 'core/controllers/home_controller.dart'; // Importa HomeController
+import './config/app_routes.dart'; // Asegúrate de que esté bien la ruta
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
+  await Firebase.initializeApp();
+
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => LoginController()),
+        ChangeNotifierProvider(create: (_) => HomeController()), // Agrega HomeController
+      ],
+      child: const TeloPagoApp(),
+    ),
   );
-  runApp(const TeloPagoApp());
 }
 
 class TeloPagoApp extends StatelessWidget {
@@ -19,8 +28,8 @@ class TeloPagoApp extends StatelessWidget {
     return MaterialApp(
       title: 'TeloPago',
       debugShowCheckedModeBanner: false,
-      initialRoute: '/login', // Ruta inicial
-      routes: appRoutes, // Aquí se agregan tus rutas
+      initialRoute: '/login',
+      routes: appRoutes, // Aquí usas el mapa que definiste en app_routes.dart
     );
   }
 }

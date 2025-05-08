@@ -1,5 +1,5 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '../../../core/controllers/login_controller.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -12,34 +12,24 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-void _onLoginPressed() async {
-  final email = _emailController.text.trim();
-  final password = _passwordController.text.trim();
+  final LoginController _controller = LoginController();
 
-  try {
-    final credential = await FirebaseAuth.instance
-        .signInWithEmailAndPassword(email: email, password: password);
+  void _onLoginPressed() async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
 
-    // Si llega aquí, el login fue exitoso
-    print('Usuario autenticado: ${credential.user?.uid}');
-    Navigator.pushReplacementNamed(context, '/home'); // o la ruta que corresponda
-  } on FirebaseAuthException catch (e) {
-    String message;
-    if (e.code == 'user-not-found') {
-      message = 'No existe una cuenta con ese correo.';
-    } else if (e.code == 'wrong-password') {
-      message = 'Contraseña incorrecta.';
-    } else {
-      message = 'Error: ${e.message}';
+    try {
+      await _controller.loginWithEmailPassword(email, password);
+
+      // Si llega aquí, el login fue exitoso
+      Navigator.pushReplacementNamed(context, '/home'); // o la ruta que corresponda
+    } catch (e) {
+      // Mostrar error en pantalla
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${e.toString()}')),
+      );
     }
-
-    // Mostrar error en pantalla
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
   }
-}
-
 
   void _goToRegister() {
     Navigator.pushNamed(context, '/register');
@@ -70,7 +60,7 @@ void _onLoginPressed() async {
             ),
             const SizedBox(height: 48),
 
-            // Input: Usuario
+            // Input: Correo electrónico
             TextField(
               controller: _emailController,
               decoration: const InputDecoration(
@@ -92,12 +82,12 @@ void _onLoginPressed() async {
             ),
             const SizedBox(height: 24),
 
-            // Botón: Continuar
+            // Botón: Iniciar sesión
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: _onLoginPressed,
-                child: const Text('Continuar'),
+                child: const Text('Iniciar sesión'),
               ),
             ),
 
@@ -111,7 +101,7 @@ void _onLoginPressed() async {
 
             const Spacer(),
 
-            // Botón: Abre tu primera cuenta
+            // Botón: Abre tu cuenta
             OutlinedButton(
               onPressed: _goToRegister,
               child: const Text('Abre tu primera cuenta'),

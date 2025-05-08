@@ -1,30 +1,47 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:telopago/core/controllers/home_controller.dart';
 import '../qr/qr_page.dart';
 import '../settings/settings_page.dart';
 import '../transfers/bankTransferHome_page.dart';
-class HomePage extends StatefulWidget {
+
+class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  Widget build(BuildContext context) {
+    final String? name = ModalRoute.of(context)?.settings.arguments as String?;
+
+    return ChangeNotifierProvider(
+      create: (_) {
+        final controller = HomeController();
+        controller.loadUserName(name); // Cargar el nombre si está disponible
+        return controller;
+      },
+      child: const HomeView(),
+    );
+  }
 }
 
-class _HomePageState extends State<HomePage> {
-  int _selectedIndex = 0;
-
-  late final List<Widget> _pages;
+class HomeView extends StatefulWidget {
+  const HomeView({super.key});
 
   @override
-  void initState() {
-    super.initState();
-    _pages = [
-      _buildMainHomeView(),
-      const QRPage(),
-      const SettingsPage(),
-    ];
-  }
+  State<HomeView> createState() => _HomeViewState();
+}
+
+class _HomeViewState extends State<HomeView> {
+  int _selectedIndex = 0;
 
   Widget _buildMainHomeView() {
+    final controller = context.watch<HomeController>(); // Uso de watch para valores reactivos
+    final name = controller.userName ?? 'Invitado'; // Si no hay nombre, se muestra 'Invitado'
+
+    // Se muestra un mensaje de carga mientras se obtiene el nombre
+    if (controller.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return Padding(
       padding: const EdgeInsets.all(16),
       child: ListView(
@@ -33,33 +50,30 @@ class _HomePageState extends State<HomePage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Column(
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('USDT: 15.92 Bs', style: TextStyle(fontSize: 18)),
-                  Text('Hola, Johan 👋', style: TextStyle(fontSize: 16)),
+                  const Text('USDT: 15.92 Bs', style: TextStyle(fontSize: 18)),
+                  Text('Hola, $name 👋', style: const TextStyle(fontSize: 16)),
                 ],
               ),
               Container(
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 30, 134, 231), // Fondo verde
-                  shape: BoxShape.circle, // Forma circular
+                decoration: const BoxDecoration(
+                  color: Color.fromARGB(255, 30, 134, 231),
+                  shape: BoxShape.circle,
                 ),
                 child: IconButton(
-                  icon: const Icon(Icons.attach_money, color: Colors.white), // Color blanco para el ícono
+                  icon: const Icon(Icons.attach_money, color: Colors.white),
                   onPressed: () {
-                    // Navegar a la vista de Transferencias
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (_) => const TransferOptionsPage()),
                     );
                   },
-                  padding: EdgeInsets.zero, // Elimina el padding predeterminado del IconButton
-                  iconSize: 30, // Tamaño del ícono (puedes ajustarlo)
+                  padding: EdgeInsets.zero,
+                  iconSize: 30,
                 ),
               )
-
-
             ],
           ),
           const SizedBox(height: 24),
@@ -98,7 +112,7 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(height: 24),
 
           // Sección 4: Historial
-          const Text('Ultimos movimientos', style: TextStyle(fontSize: 18)),
+          const Text('Últimos movimientos', style: TextStyle(fontSize: 18)),
           const SizedBox(height: 12),
           TextField(
             decoration: InputDecoration(
@@ -140,20 +154,23 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final pages = [
+      _buildMainHomeView(),
+      const QRPage(),
+      const SettingsPage(),
+    ];
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('TeloPago'),
         backgroundColor: const Color.fromARGB(255, 101, 211, 219),
         titleTextStyle: const TextStyle(
-          fontSize: 22, // Tamaño más grande
-          fontWeight: FontWeight.w600, // Peso opcional para destacarlo
-          color: Colors.white, // Color del texto
+          fontSize: 22,
+          fontWeight: FontWeight.w600,
+          color: Colors.white,
         ),
       ),
-
-      body: _pages.length > _selectedIndex
-          ? _pages[_selectedIndex]
-          : const SizedBox.shrink(),
+      body: pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         selectedItemColor: const Color(0xFF25adb6),

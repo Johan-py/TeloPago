@@ -9,24 +9,38 @@ class AliExpressView extends StatefulWidget {
 
 class _AliExpressViewState extends State<AliExpressView> {
   final TextEditingController _linkController = TextEditingController();
-  final TextEditingController _amountController = TextEditingController();
+  bool _isVerifying = false;
 
-  void _submit() {
+  Future<void> _submit() async {
     final link = _linkController.text.trim();
-    final amount = _amountController.text.trim();
 
-    if (link.isEmpty || amount.isEmpty) {
+    if (link.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Completa todos los campos')),
+        const SnackBar(content: Text('Completa el campo del enlace')),
       );
       return;
     }
 
-    // Aquí se puede integrar con Firebase más adelante
-    print('Pagando AliExpress con link: $link y monto: $amount');
+    setState(() => _isVerifying = true);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Solicitud enviada ✅')),
+    // Simular proceso de verificación
+    await Future.delayed(const Duration(seconds: 2));
+
+    setState(() => _isVerifying = false);
+
+    // Mostrar diálogo de éxito
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Verificado ✅'),
+        content: const Text('El producto ha sido verificado exitosamente.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -42,7 +56,7 @@ class _AliExpressViewState extends State<AliExpressView> {
             const Icon(Icons.shopping_bag, size: 80, color: Colors.orange),
             const SizedBox(height: 24),
             const Text(
-              'Paga tu producto de AliExpress',
+              'Pega el enlace del producto de AliExpress',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
@@ -55,28 +69,23 @@ class _AliExpressViewState extends State<AliExpressView> {
                 border: OutlineInputBorder(),
               ),
             ),
-            const SizedBox(height: 16),
-
-            // TextField(
-            //   controller: _amountController,
-            //   keyboardType: TextInputType.numberWithOptions(decimal: true),
-            //   decoration: const InputDecoration(
-            //     labelText: 'Monto en USD',
-            //     border: OutlineInputBorder(),
-            //     prefixText: '\$ ',
-            //   ),
-            // ),
             const SizedBox(height: 32),
+
             ElevatedButton.icon(
-              onPressed: _submit,
-              icon: const Icon(Icons.accessibility),
-              label: const Text('Verificar'),
+              onPressed: _isVerifying ? null : _submit,
+              icon: _isVerifying
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                    )
+                  : const Icon(Icons.verified),
+              label: Text(_isVerifying ? 'Verificando...' : 'Verificar'),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 textStyle: const TextStyle(fontSize: 16),
               ),
             ),
-            
           ],
         ),
       ),
