@@ -13,7 +13,8 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => LoginController()),
-        ChangeNotifierProvider(create: (_) => HomeController()), // Agrega HomeController
+        ChangeNotifierProvider(create: (_) => HomeController()),
+         // Agrega HomeController
       ],
       child: const TeloPagoApp(),
     ),

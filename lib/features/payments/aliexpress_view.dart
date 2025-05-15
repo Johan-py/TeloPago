@@ -32,12 +32,13 @@ class _AliExpressViewState extends State<AliExpressView> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Verificado ✅'),
-        content: const Text('El producto ha sido verificado exitosamente.'),
+        backgroundColor: Colors.grey[900], // Fondo oscuro para el diálogo
+        title: const Text('Verificado ✅', style: TextStyle(color: Colors.white)),
+        content: const Text('El producto ha sido verificado exitosamente.', style: TextStyle(color: Colors.white70)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
+            child: const Text('OK', style: TextStyle(color: Colors.orange)),
           ),
         ],
       ),
@@ -47,7 +48,15 @@ class _AliExpressViewState extends State<AliExpressView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Pago AliExpress')),
+      backgroundColor: const Color(0xFF121212), // fondo oscuro general
+     appBar: AppBar(
+        backgroundColor: const Color(0xFF1F1F1F),
+        iconTheme: const IconThemeData(color: Colors.white), // <- Esto hace que el ícono sea blanco
+        title: const Text(
+          'Pago Aliexpress',
+          style: TextStyle(color: Colors.white),
+        ),      
+      ),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: ListView(
@@ -58,19 +67,27 @@ class _AliExpressViewState extends State<AliExpressView> {
             const Text(
               'Pega el enlace del producto de AliExpress',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
             ),
             const SizedBox(height: 32),
-
             TextField(
               controller: _linkController,
-              decoration: const InputDecoration(
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(
                 labelText: 'Enlace del producto',
-                border: OutlineInputBorder(),
+                labelStyle: const TextStyle(color: Colors.white70),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.grey.shade700),
+                ),
+                focusedBorder: const OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.orange),
+                ),
+                border: const OutlineInputBorder(),
+                fillColor: const Color(0xFF2C2C2C),
+                filled: true,
               ),
             ),
             const SizedBox(height: 32),
-
             ElevatedButton.icon(
               onPressed: _isVerifying ? null : _submit,
               icon: _isVerifying

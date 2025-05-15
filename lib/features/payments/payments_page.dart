@@ -50,7 +50,7 @@ class _PaymentsPageState extends State<PaymentsPage> {
       onTap: () => _handleServiceTap(service),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.grey[200],
+          color: const Color.fromARGB(255, 114, 114, 114), // Fondo oscuro para cada tile
           borderRadius: BorderRadius.circular(12),
         ),
         padding: const EdgeInsets.all(12),
@@ -62,11 +62,15 @@ class _PaymentsPageState extends State<PaymentsPage> {
                     icons[service]!,
                     width: 48,
                     height: 48,
-                    errorBuilder: (_, __, ___) => const Icon(Icons.broken_image),
+                    errorBuilder: (_, __, ___) =>
+                        const Icon(Icons.broken_image, color: Colors.white),
                   )
-                : const Icon(Icons.miscellaneous_services, size: 48),
+                : const Icon(Icons.miscellaneous_services, size: 48, color: Colors.white),
             const SizedBox(height: 8),
-            Text(service, style: const TextStyle(fontWeight: FontWeight.bold)),
+            Text(
+              service,
+              style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+            ),
           ],
         ),
       ),
@@ -74,9 +78,24 @@ class _PaymentsPageState extends State<PaymentsPage> {
   }
 
   @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Pagar servicios')),
+      backgroundColor: const Color(0xFF121212), // Fondo general oscuro
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF1F1F1F),
+        iconTheme: const IconThemeData(color: Colors.white), // <- Esto hace que el ícono sea blanco
+        title: const Text(
+          'Pagar servicios',
+          style: TextStyle(color: Colors.white),
+        ),      
+      ),
+
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -84,10 +103,17 @@ class _PaymentsPageState extends State<PaymentsPage> {
             // Buscador
             TextField(
               controller: _searchController,
+              style: const TextStyle(color: Colors.white),
               decoration: InputDecoration(
                 hintText: 'Buscar servicio',
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                hintStyle: const TextStyle(color: Colors.grey),
+                prefixIcon: const Icon(Icons.search, color: Colors.white),
+                filled: true,
+                fillColor: const Color(0xFF2C2C2C),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
               ),
             ),
             const SizedBox(height: 16),

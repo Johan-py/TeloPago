@@ -95,15 +95,23 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Completa tu perfil')),
+     return Scaffold(
+      backgroundColor: Colors.white, // Fondo oscuro
+      appBar: AppBar(
+        title: const Text('Completa tu perfil'),
+        backgroundColor: const Color(0xFF25ADB6), // Opcional: AppBar también oscuro
+      ),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: ListView(
           children: [
             const Text(
               'Introduce tus datos personales',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 20, 
+                fontWeight: FontWeight.bold, 
+                color: Colors.white, // Texto claro sobre fondo oscuro
+              ),
             ),
             const SizedBox(height: 24),
 
@@ -182,9 +190,18 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
             // Botón para completar el registro
             ElevatedButton(
               onPressed: _submitProfile,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFF25ADB6), // Color de fondo personalizado
+                foregroundColor: Colors.white,      // Color del texto
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30), // Bordes redondeados opcionales
+                ),
+              ),
               child: const Text('Finalizar registro'),
             ),
-          ],
+
+                      ],
         ),
       ),
     );

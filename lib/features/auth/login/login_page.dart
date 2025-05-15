@@ -20,11 +20,8 @@ class _LoginPageState extends State<LoginPage> {
 
     try {
       await _controller.loginWithEmailPassword(email, password);
-
-      // Si llega aquí, el login fue exitoso
-      Navigator.pushReplacementNamed(context, '/home'); // o la ruta que corresponda
+      Navigator.pushReplacementNamed(context, '/home');
     } catch (e) {
-      // Mostrar error en pantalla
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: ${e.toString()}')),
       );
@@ -38,6 +35,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFF121212), // Fondo oscuro
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
         child: Column(
@@ -54,7 +52,11 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(width: 12),
                 const Text(
                   'TeloPago',
-                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
               ],
             ),
@@ -63,9 +65,16 @@ class _LoginPageState extends State<LoginPage> {
             // Input: Correo electrónico
             TextField(
               controller: _emailController,
-              decoration: const InputDecoration(
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(
                 labelText: 'Correo electrónico',
-                border: OutlineInputBorder(),
+                labelStyle: const TextStyle(color: Colors.grey),
+                filled: true,
+                fillColor: const Color(0xFF2C2C2C),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide.none,
+                ),
               ),
               keyboardType: TextInputType.emailAddress,
             ),
@@ -74,9 +83,16 @@ class _LoginPageState extends State<LoginPage> {
             // Input: Contraseña
             TextField(
               controller: _passwordController,
-              decoration: const InputDecoration(
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(
                 labelText: 'Contraseña',
-                border: OutlineInputBorder(),
+                labelStyle: const TextStyle(color: Colors.grey),
+                filled: true,
+                fillColor: const Color(0xFF2C2C2C),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide.none,
+                ),
               ),
               obscureText: true,
             ),
@@ -87,6 +103,11 @@ class _LoginPageState extends State<LoginPage> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: _onLoginPressed,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF25ADB6),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
                 child: const Text('Iniciar sesión'),
               ),
             ),
@@ -96,7 +117,10 @@ class _LoginPageState extends State<LoginPage> {
               onPressed: () {
                 // Puedes navegar a /recover más adelante
               },
-              child: const Text('¿Olvidaste tu usuario o contraseña?'),
+              child: const Text(
+                '¿Olvidaste tu usuario o contraseña?',
+                style: TextStyle(color: Colors.white70),
+              ),
             ),
 
             const Spacer(),
@@ -104,6 +128,10 @@ class _LoginPageState extends State<LoginPage> {
             // Botón: Abre tu cuenta
             OutlinedButton(
               onPressed: _goToRegister,
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: Colors.white70),
+                foregroundColor: Colors.white,
+              ),
               child: const Text('Abre tu primera cuenta'),
             ),
           ],
