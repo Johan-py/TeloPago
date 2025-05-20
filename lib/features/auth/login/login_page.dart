@@ -13,18 +13,23 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
 
   final LoginController _controller = LoginController();
+  bool _isLoading = false;
 
   void _onLoginPressed() async {
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
 
+    setState(() => _isLoading = true);
+
     try {
-      await _controller.loginWithEmailPassword(email, password);
+      await _controller.loginWithEmail(email, password); // Usa método adecuado
       Navigator.pushReplacementNamed(context, '/home');
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: ${e.toString()}')),
       );
+    } finally {
+      setState(() => _isLoading = false);
     }
   }
 
@@ -35,7 +40,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF121212), // Fondo oscuro
+      backgroundColor: const Color(0xFF121212),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
         child: Column(
@@ -45,10 +50,7 @@ class _LoginPageState extends State<LoginPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Image.asset(
-                  'assets/images/teloPago.png',
-                  height: 48,
-                ),
+                Image.asset('assets/images/teloPago.png', height: 48),
                 const SizedBox(width: 12),
                 const Text(
                   'TeloPago',
@@ -62,7 +64,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
             const SizedBox(height: 48),
 
-            // Input: Correo electrónico
+            // Email input
             TextField(
               controller: _emailController,
               style: const TextStyle(color: Colors.white),
@@ -80,7 +82,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
             const SizedBox(height: 16),
 
-            // Input: Contraseña
+            // Password input
             TextField(
               controller: _passwordController,
               style: const TextStyle(color: Colors.white),
@@ -98,39 +100,41 @@ class _LoginPageState extends State<LoginPage> {
             ),
             const SizedBox(height: 24),
 
-            // Botón: Iniciar sesión
+            // Botón de login
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: _onLoginPressed,
+                onPressed: _isLoading ? null : _onLoginPressed,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF25ADB6),
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
-                child: const Text('Iniciar sesión'),
+                child: _isLoading
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text('Iniciar sesión'),
               ),
             ),
 
-            // Texto: ¿Olvidaste tu usuario o contraseña?
+            // Recuperar cuenta
             TextButton(
               onPressed: () {
-                // Puedes navegar a /recover más adelante
+                // Puedes agregar navegación a /recover
               },
               child: const Text(
-                '¿Olvidaste tu usuario o contraseña?',
+                '¿Olvidaste tu correo o contraseña?',
                 style: TextStyle(color: Colors.white70),
               ),
             ),
 
             const Spacer(),
 
-            // Botón: Abre tu cuenta
+            // Registro
             OutlinedButton(
               onPressed: _goToRegister,
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: Colors.white70),
-                foregroundColor: Colors.white,
+                foregroundColor: const Color.fromARGB(255, 41, 73, 131),
               ),
               child: const Text('Abre tu primera cuenta'),
             ),

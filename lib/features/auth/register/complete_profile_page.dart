@@ -10,6 +10,7 @@ class CompleteProfilePage extends StatefulWidget {
 
 class _CompleteProfilePageState extends State<CompleteProfilePage> {
   final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _idController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -21,24 +22,22 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    
-    // Obtener el correo pasado como argumento desde la página anterior
     final String? email = ModalRoute.of(context)!.settings.arguments as String?;
-    
     if (email != null) {
-      _emailController.text = email; // Completar el campo de correo
+      _emailController.text = email;
     }
   }
 
   Future<void> _submitProfile() async {
     final name = _nameController.text.trim();
+    final lastName = _lastNameController.text.trim();
     final email = _emailController.text.trim();
     final carnet = _idController.text.trim();
     final birth = _birthDate;
     final password = _passwordController.text.trim();
     final confirmPassword = _confirmPasswordController.text.trim();
 
-    if (name.isEmpty || email.isEmpty || carnet.isEmpty || birth == null || password.isEmpty || confirmPassword.isEmpty) {
+    if ([name, lastName, email, carnet, password, confirmPassword].contains('') || birth == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Por favor completa todos los campos.')),
       );
@@ -55,6 +54,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
     try {
       await _controller.submitProfile(
         name: name,
+        lastname: lastName,
         email: email,
         carnet: carnet,
         birthDate: birth,
@@ -62,13 +62,12 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
       );
 
       Future.microtask(() {
-        // Navegar a la página de inicio, pasando el nombre como argumento
         Navigator.pushNamedAndRemoveUntil(
-          context, 
-          '/home', 
-          (route) => false, 
-          arguments: name, // Pasar el nombre como argumento
-        );  
+          context,
+          '/home',
+          (route) => false,
+          arguments: name,
+        );
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -84,22 +83,26 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
       initialDate: DateTime(now.year - 18),
       firstDate: DateTime(1900),
       lastDate: now,
+      builder: (context, child) {
+        return Theme(
+          data: ThemeData.dark(),
+          child: child!,
+        );
+      },
     );
-
     if (picked != null) {
-      setState(() {
-        _birthDate = picked;
-      });
+      setState(() => _birthDate = picked);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-     return Scaffold(
-      backgroundColor: Colors.white, // Fondo oscuro
+    return Scaffold(
+      backgroundColor: const Color(0xFF121212),
       appBar: AppBar(
         title: const Text('Completa tu perfil'),
-        backgroundColor: const Color(0xFF25ADB6), // Opcional: AppBar también oscuro
+        backgroundColor: const Color(0xFF25ADB6),
+        foregroundColor: Colors.white,
       ),
       body: Padding(
         padding: const EdgeInsets.all(24),
@@ -107,101 +110,80 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
           children: [
             const Text(
               'Introduce tus datos personales',
-              style: TextStyle(
-                fontSize: 20, 
-                fontWeight: FontWeight.bold, 
-                color: Colors.white, // Texto claro sobre fondo oscuro
-              ),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
             ),
             const SizedBox(height: 24),
-
-            // Campo de nombre completo
-            TextField(
-              controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: 'Nombre completo',
-                border: OutlineInputBorder(),
-              ),
-            ),
+            _buildInputField(_nameController, 'Nombre'),
             const SizedBox(height: 16),
-
-            // Campo de correo electrónico
-            TextField(
-              controller: _emailController,
-              decoration: const InputDecoration(
-                labelText: 'Correo electrónico',
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: TextInputType.emailAddress,
-            ),
+            _buildInputField(_lastNameController, 'Apellido'),
             const SizedBox(height: 16),
-
-            // Campo de número de carnet
-            TextField(
-              controller: _idController,
-              decoration: const InputDecoration(
-                labelText: 'Número de carnet',
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: TextInputType.number,
-            ),
+            _buildInputField(_emailController, 'Correo electrónico', type: TextInputType.emailAddress),
             const SizedBox(height: 16),
-
-            // Selector de fecha de nacimiento
+            _buildInputField(_idController, 'Número de carnet', type: TextInputType.number),
+            const SizedBox(height: 16),
             GestureDetector(
               onTap: _pickBirthDate,
               child: InputDecorator(
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Fecha de nacimiento',
-                  border: OutlineInputBorder(),
+                  labelStyle: const TextStyle(color: Colors.grey),
+                  filled: true,
+                  fillColor: const Color(0xFF2C2C2C),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide.none,
+                  ),
                 ),
                 child: Text(
                   _birthDate != null
-                      ? '${_birthDate!.day}/${_birthDate!.month}/${_birthDate!.year}'
+                      ? '${_birthDate!.year}-${_birthDate!.month.toString().padLeft(2, '0')}-${_birthDate!.day.toString().padLeft(2, '0')}'
                       : 'Selecciona una fecha',
-                  style: const TextStyle(fontSize: 16),
+                  style: const TextStyle(fontSize: 16, color: Colors.white),
                 ),
               ),
             ),
             const SizedBox(height: 16),
-
-            // Campo de contraseña
-            TextField(
-              controller: _passwordController,
-              decoration: const InputDecoration(
-                labelText: 'Contraseña',
-                border: OutlineInputBorder(),
-              ),
-              obscureText: true, // Ocultar el texto ingresado
-            ),
+            _buildInputField(_passwordController, 'Contraseña', obscure: true),
             const SizedBox(height: 16),
-
-            // Campo de confirmación de contraseña
-            TextField(
-              controller: _confirmPasswordController,
-              decoration: const InputDecoration(
-                labelText: 'Confirmar contraseña',
-                border: OutlineInputBorder(),
-              ),
-              obscureText: true, // Ocultar el texto ingresado
-            ),
+            _buildInputField(_confirmPasswordController, 'Confirmar contraseña', obscure: true),
             const SizedBox(height: 32),
-
-            // Botón para completar el registro
             ElevatedButton(
               onPressed: _submitProfile,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF25ADB6), // Color de fondo personalizado
-                foregroundColor: Colors.white,      // Color del texto
+                backgroundColor: const Color(0xFF25ADB6),
+                foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30), // Bordes redondeados opcionales
+                  borderRadius: BorderRadius.circular(30),
                 ),
               ),
               child: const Text('Finalizar registro'),
             ),
+          ],
+        ),
+      ),
+    );
+  }
 
-                      ],
+  Widget _buildInputField(
+    TextEditingController controller,
+    String label, {
+    TextInputType? type,
+    bool obscure = false,
+  }) {
+    return TextField(
+      controller: controller,
+      keyboardType: type,
+      obscureText: obscure,
+      style: const TextStyle(color: Colors.white),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: const TextStyle(color: Colors.grey),
+        filled: true,
+        fillColor: const Color(0xFF2C2C2C),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide.none,
         ),
       ),
     );

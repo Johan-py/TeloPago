@@ -1,45 +1,72 @@
-import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-class LoginController extends ChangeNotifier {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+class LoginController {
+  final String baseUrl = 'http://10.0.2.2:8000/api/users';
+  final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
-  bool isLoading = false;
+  /// Inicia sesión con email y password
+  Future<void> loginWithEmail(String email, String password) async {
+    final url = Uri.parse('$baseUrl/login/'); // Django SimpleJWT login
 
-  /// Inicia sesión con email y contraseña
-  Future<void> loginWithEmailPassword(String email, String password) async {
-    if (email.isEmpty || password.isEmpty) {
-      throw Exception('Debes completar ambos campos');
-    }
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'email': email, 'password': password}),
+    );
 
-    try {
-      isLoading = true;
-      notifyListeners();
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
 
-      await _auth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-    } on FirebaseAuthException catch (e) {
-      throw Exception(_getErrorMessage(e));
-    } catch (e) {
-      throw Exception('Error al iniciar sesión: $e');
-    } finally {
-      isLoading = false;
-      notifyListeners();
+      final accessToken = data['access'];    // Token JWT de acceso
+      final refreshToken = data['refresh'];  // Token de refresco
+
+      if (accessToken == null) throw Exception('Access token no recibido');
+
+      await _storage.write(key: 'auth_token', value: accessToken);
+      if (refreshToken != null) {
+        await _storage.write(key: 'refresh_token', value: refreshToken);
+      }
+    } else {
+      final errorData = jsonDecode(response.body);
+      throw Exception(errorData['detail'] ?? 'Error al iniciar sesión');
     }
   }
 
-  String _getErrorMessage(FirebaseAuthException e) {
-    switch (e.code) {
-      case 'user-not-found':
-        return 'Usuario no encontrado';
-      case 'wrong-password':
-        return 'Contraseña incorrecta';
-      case 'invalid-email':
-        return 'Correo inválido';
-      default:
-        return 'Error de autenticación: ${e.message}';
+  /// Cierra sesión limpiando los tokens
+  Future<void> logout() async {
+    await _storage.delete(key: 'auth_token');
+    await _storage.delete(key: 'refresh_token');
+  }
+
+  /// Devuelve el token de acceso almacenado
+  Future<String?> getToken() async {
+    return await _storage.read(key: 'auth_token');
+  }
+
+  /// Refresca el token de acceso usando el refresh token
+  Future<bool> refreshAccessToken() async {
+    final refreshToken = await _storage.read(key: 'refresh_token');
+    if (refreshToken == null) return false;
+
+    final url = Uri.parse('$baseUrl/token/refresh/');
+
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'refresh': refreshToken}),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final newAccessToken = data['access'];
+      if (newAccessToken != null) {
+        await _storage.write(key: 'auth_token', value: newAccessToken);
+        return true;
+      }
     }
+
+    return false;
   }
 }

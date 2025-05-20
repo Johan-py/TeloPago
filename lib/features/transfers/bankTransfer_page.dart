@@ -13,26 +13,31 @@ class BankTransferPage extends StatelessWidget {
     ];
 
     return Scaffold(
+      backgroundColor: const Color(0xFF121212), // fondo oscuro
       appBar: AppBar(
         title: const Text('Selecciona un banco'),
-        backgroundColor: const Color(0xFF25adb6),
+        backgroundColor: const Color(0xFF25ADB6),
+        foregroundColor: Colors.white,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: GridView.builder(
           itemCount: banks.length,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 4, // matriz 4x4
+            crossAxisCount: 4,
             crossAxisSpacing: 12,
             mainAxisSpacing: 12,
+            childAspectRatio: 0.75, // para que no queden muy altos los ítems
           ),
           itemBuilder: (context, index) {
             final bank = banks[index];
             return GestureDetector(
               onTap: () {
-                // Aquí puedes navegar o mostrar la opción del banco elegido
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Elegiste ${bank['name']}')),
+                  SnackBar(
+                    content: Text('Elegiste ${bank['name']}'),
+                    backgroundColor: const Color(0xFF25ADB6),
+                  ),
                 );
               },
               child: Column(
@@ -40,17 +45,20 @@ class BankTransferPage extends StatelessWidget {
                   Expanded(
                     child: Container(
                       decoration: BoxDecoration(
-                        color: const Color.fromRGBO(245, 245, 245, 1),
+                        color: const Color(0xFFF5F5F5), // fondo claro para destacar logo
                         borderRadius: BorderRadius.circular(12),
                       ),
                       padding: const EdgeInsets.all(8),
                       child: Image.asset(bank['logo']),
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 6),
                   Text(
                     bank['name'],
-                    style: const TextStyle(fontSize: 12),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.white, // texto blanco
+                    ),
                     textAlign: TextAlign.center,
                   ),
                 ],

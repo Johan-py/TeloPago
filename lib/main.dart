@@ -1,7 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'core/controllers/login_controller.dart';
 import 'core/controllers/home_controller.dart'; // Importa HomeController
 import './config/app_routes.dart'; // Asegúrate de que esté bien la ruta
 
@@ -12,7 +11,6 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => LoginController()),
         ChangeNotifierProvider(create: (_) => HomeController()),
          // Agrega HomeController
       ],

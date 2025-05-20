@@ -86,6 +86,8 @@ class _HomeViewState extends State<HomeView> {
 
           // Balance Card
           Container(
+            width: double.infinity, // 👈 Esto es clave
+
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
@@ -98,9 +100,13 @@ class _HomeViewState extends State<HomeView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  '\$5,500.50',
-                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
+                Text(
+                  '\$${controller.balance?.toStringAsFixed(2) ?? '0.00'}',
+                  style: const TextStyle(
+                    fontSize: 40, // Más grande
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 const Text(
@@ -108,15 +114,18 @@ class _HomeViewState extends State<HomeView> {
                   style: TextStyle(color: Colors.white70),
                 ),
                 const SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: const [
-                    Text('Bs 88,008\n123-456-7890', style: TextStyle(color: Color.fromARGB(255, 255, 255, 255))),
-                    Icon(Icons.qr_code, color: Colors.white, size: 32),
-                  ],
-                )
+                Text(
+                  controller.usdtPrice != null
+                    ? 'Precio USDT: Bs ${controller.usdtPrice!.toStringAsFixed(2)}'
+                    : 'Obteniendo precio USDT...',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    color: Colors.white70,
+                  ),
+                ),
               ],
-            ),
+            )
+
           ),
           const SizedBox(height: 24),
 
